@@ -1,30 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
+
 import './App.css'
 import { TodoProvider } from './contexts';
 
 function App() {
   const [todos, setTodos] = useState([]);
-  // Functionality for context api : 
+
   const addTodo = (todo)=>{
     setTodos((prevTodos)=>{
-      return [ ...prevTodos, {id: crypto.randomUUID(), ...todo}]
+      [...prevTodos, {id : Date.now(), ...todo}]
     })
   }
-
   const updateTodo = (id, todo) =>{
-    setTodos((prevTodos)=> prevTodos.map((eachTodo) => (eachTodo.id ===id ? todo : eachTodo ) ))
+    setTodos((prev)=> prev.map((prevTodo)=> prevTodo.id === id? todo: prevTodo ))
   }
   const deleteTodo = (id)=>{
-    setTodos((prevTodos) => prevTodos.filter((eachTodo) => eachTodo.id!==id))
+    setTodos((prev)=> prev.filter((prevTodo)=> prevTodo.id!==id))
   }
-  const toggleCompleted = (id)=>{
-    setTodos((prevTodos)=> prevTodos.map((eachTodo)=> (eachTodo.id ===id ? {...eachTodo, completed : !eachTodo.completed} :eachTodo )))
+  const toggleCompleted =(id)=>{
+    setTodos((prev)=>prev.map((prevTodo)=> prevTodo.id===id? {completed :!prevTodo.completed,...prevTodo} :prevTodo))
   }
+
+  useEffect(()=>{
+    const todos= JSON.parse(localStorage.getItem("todos"))
+    if(todos && todos.length>0){
+      setTodos(todos)                             
+    }
+    
+  }, [])
+
+  useEffect(()=>{
+    localStorage.setItem("todos", JSON.stringify(todos) )
+  },[todos])
+
+
   return (
-    <>
-      <TodoProvider value={{todos, addTodo, updateTodo, toggleCompleted, deleteTodo}}>
+    <TodoProvider value={{todos, addTodo, updateTodo, deleteTodo, toggleCompleted}}>
+      
       <div className="bg-[#172842] min-h-screen py-8">
                 <div className="w-full max-w-2xl mx-auto shadow-md rounded-lg px-4 py-3 text-white">
                     <h1 className="text-2xl font-bold text-center mb-8 mt-2">Manage Your Todos</h1>
@@ -37,7 +49,7 @@ function App() {
                 </div>
       </div>
       </TodoProvider>
-    </>
+    
   )
 }
 
